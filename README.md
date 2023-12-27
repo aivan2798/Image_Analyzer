@@ -1,3 +1,7 @@
 # image_analyzer
 
-A new Flutter project.
+Flutter app with the ability of:
+    - editing brightness
+    - changing saturation
+    - croping
+    - comparing 2 added images
