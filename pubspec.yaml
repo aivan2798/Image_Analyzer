@@ -24,6 +24,8 @@ dependencies:
   image: ^3.0.1
   image_compare: ^1.1.2
   flutter_isolate: ^2.0.4
+  flutter_image_editor: ^2.1.0
+  
   #extended_image: ^8.2.0
   
 
