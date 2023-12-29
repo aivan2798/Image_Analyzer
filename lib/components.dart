@@ -38,6 +38,7 @@ import 'package:image_compare/image_compare.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_editor/flutter_image_editor.dart';
+import 'package:loading_animations/loading_animations.dart';
 
 //import 'dart:js_interop';
 
@@ -168,6 +169,9 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
   double brightness_contrast = 0, exposure_val = 0, saturation_val = 3;
 
   bool page_1_ctrls = false;
+
+  bool is_saving_img = false;
+
   late img_man.Image my_image;
   late Uint8List my_image_bytes ;
   late Uint8List image_2_bytes;
@@ -236,6 +240,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
       else
       {
         print("image comparision: $message");
+        comparision_value = (1.0-message);
         startComparision();
       }
     });
@@ -246,7 +251,12 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
     //
   }
 
-
+  void setSavingImg()
+  {
+    setState(() {
+      is_saving_img = !is_saving_img;
+    });
+  }
 
   void startComparision()
   {
@@ -409,18 +419,22 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 setImage(image_file);
                                                 
                                               },
-                                              child:Container(
-                                                
-                                                margin: EdgeInsets.only(top: 20),
-                                                width: 280,
-                                                height:300,
-                                                decoration: BoxDecoration(
+                                              child:Stack(
+                                              children:[
+                                                        
+                                                          Container(
+                                                                
+                                                                margin: EdgeInsets.only(top: 20),
+                                                                width: 280,
+                                                                height:300,
+                                                                decoration: BoxDecoration(
                                                                     border: Border.all(color: Colors.black),
+                                                                    color: Colors.white,
                                                                     boxShadow: [BoxShadow(color: Colors.black,blurRadius: 5)]
                                                                     ),
-                                                child:(is_image==false)?Icon(IconData(0xf80d, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,): WidgetsToImage(child: OnImageMatrixWidget(
+                                                                child:(is_image==false)?Icon(IconData(0xf80d, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,): WidgetsToImage(child: OnImageMatrixWidget(
                                                             //controller: image_ctrl,
-                                                            colorFilter: OnImageMatrix.matrix(
+                                                                colorFilter: OnImageMatrix.matrix(
                                                                   brightnessAndContrast: brightness_contrast,
                                                                   saturation: saturation_val,
                                                                   exposure: exposure_val, 
@@ -450,7 +464,24 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 //file(fit:BoxFit.fill,File(image_path))
                                                 //child: Image.file(File(image_path))
 
-                                              )
+                                              ),
+                                              (is_saving_img==true)?Container(
+                                                                margin: EdgeInsets.only(top: 20),
+                                                                width: 280,
+                                                                height:300,
+                                                                color: const Color.fromARGB(210, 30, 29, 29),
+                                                                
+                                                                child:LoadingFlipping.circle()
+                                                          ):Container(
+                                                            margin: EdgeInsets.only(top: 20),
+                                                                width: 280,
+                                                                height:300,
+                                                                child: Text("Touch here to replace or add image",style:TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 2))
+                                                          )
+                                                ]
+                                            )
                               ),
                               Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -574,9 +605,15 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                               /*File file = File.new(image_path);
                                                               file.writeAsBytes(img);*/
                                                             */
+                                                              setSavingImg();
                                                               my_image_bytes = await widget_img_ctrl.capture() as Uint8List;
-                                                              page_ctrl.nextPage(duration: Duration(seconds: 1), 
-                                                              curve: Curves.bounceOut);
+                                                              setSavingImg();
+
+                                                              if(is_saving_img==false)
+                                                              {
+                                                                page_ctrl.nextPage(duration: Duration(seconds: 1), 
+                                                                curve: Curves.bounceOut);
+                                                              }
                                                               
                                                               
                                                               
@@ -725,7 +762,9 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
               ]);
 
     page_3 = Column(
-                                        children: [Text("Comparing The Images",style: TextStyle(color: Colors.white)),
+                                        children: [Text("Comparing The Images",style: TextStyle(color: Colors.white,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 3)),
                                         (is_image==true)&&(is_image2==true)?Row(
                                   //crossAxisAlignment: CrossAxisAlignment.center,
                                             mainAxisAlignment: MainAxisAlignment.center,
@@ -795,24 +834,27 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                               child:ElevatedButton(
                                                           onPressed: () async
                                                                       {
+                                                                        if(start_comparision==false)
+                                                                        {
                                                                         startComparision();
-                                                                        var image_1 = File(image_path);
-                                                                        var image_2 = File(image_2_path);
+                                                                        //var image_1 = File(image_path);
+                                                                        //var image_2 = File(image_2_path);
 
                                                                         //flutterCompute(compareNow,[image_1,image_2]);
                                                                         //Uint8List image_2_bytes = await image_2.readAsBytes();
                                                                         compare_remote_send_port.send([my_image_bytes,image_2_bytes]);
+                                                                        }
                                                                         //startComparision();
 
                                                                         
                                                                        // page_ctrl.nextPage(duration: Duration(seconds: 1), 
                                                                        // curve: Curves.bounceOut);
                                                                       }, 
-                                                          child: Text("COMPARE"),
+                                                          child: (start_comparision==false)?Text("COMPARE"):Text("WAIT...."),
                                                           style: ButtonStyle(
-                                                                              backgroundColor: MaterialStatePropertyAll(Colors.black87),
-                                                                              elevation: MaterialStatePropertyAll(20),
-                                                                              shadowColor: MaterialStatePropertyAll(Colors.blueAccent)
+                                                                              backgroundColor: (start_comparision==false)?MaterialStatePropertyAll(Colors.black87):MaterialStatePropertyAll(Color.fromARGB(213, 155, 85, 182)),
+                                                                              elevation: (start_comparision==false)?MaterialStatePropertyAll(20):MaterialStatePropertyAll(100),
+                                                                              shadowColor: (start_comparision==false)?MaterialStatePropertyAll(Colors.blueAccent):MaterialStatePropertyAll(Colors.black45)
                                                                             )
                                                           )
                                                       ),
@@ -821,13 +863,37 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                             ]
                                 ),
                                 Container(
-                                  margin: EdgeInsets.only(top:20),
-                                  child:Row(
+                                                
+                                                  margin: EdgeInsets.only(left:(((MediaQuery.of(build_context).size.width)/50)),top:30),
+
+                                                  child:Text("RESULTS",style:TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 3))
+                                                ),
+                                Container(
+                                  height: 200,
+                                  padding: EdgeInsets.only(top:20),
+                                  
+                                  //width: (MediaQuery.of(build_context).size.width)-100,
+                                  margin: EdgeInsets.only(top:20,left: 20,right:30),
+                                  decoration: BoxDecoration(
+                                                 // border: Border.all(color: Colors.black),
+                                                  //color: Color.fromARGB(255, 3, 88, 98),
+                                                  gradient:LinearGradient(colors:[Color.fromARGB(213, 196, 90, 238),Color.fromARGB(201, 1, 146, 120),Color.fromARGB(201, 1, 146, 120),Color.fromARGB(255, 3, 88, 98)]),
+                                                  boxShadow: [BoxShadow(color:Colors.black,blurRadius: 10,blurStyle: BlurStyle.solid)]
+                                                      ),
+                                  child:
+                                      Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children:[
+                                                
                                                 Text("COMPARISION SCORE: ",style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
                                                         letterSpacing: 3)),
-                                                Text(comparision_value.toString())
+                                                Text(comparision_value==0.0?"_ _":comparision_value.toString(),style:TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 3))
                                               ]
                                             )
                                           )

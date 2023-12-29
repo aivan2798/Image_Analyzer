@@ -26,6 +26,7 @@ dependencies:
   flutter_isolate: ^2.0.4
   flutter_image_editor: ^2.1.0
   widgets_to_image: ^0.0.2
+  loading_animations: ^2.2.0
   #extended_image: ^8.2.0
   
 
