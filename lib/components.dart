@@ -17,18 +17,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_editor/image_editor.dart' as image_editor;
 import 'package:widgets_to_image/widgets_to_image.dart';
 
-/*
-import 'package:image_editor_dove/extension/num_extension.dart';
-import 'package:image_editor_dove/flutter_image_editor.dart';
-import 'package:image_editor_dove/image_editor.dart';
-import 'package:image_editor_dove/model/float_text_model.dart';
-import 'package:image_editor_dove/widget/drawing_board.dart';
-import 'package:image_editor_dove/widget/editor_panel_controller.dart';
-import 'package:image_editor_dove/widget/float_text_widget.dart';
-import 'package:image_editor_dove/widget/image_editor_delegate.dart';
-import 'package:image_editor_dove/widget/slider_widget.dart';
-import 'package:image_editor_dove/widget/text_editor_page.dart';
-*/
 import 'package:colorfilter_generator/colorfilter_generator.dart';
 import 'package:image/image.dart' as img_man;
 import 'package:colorfilter_generator/addons.dart';
@@ -39,25 +27,6 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_editor/flutter_image_editor.dart';
 import 'package:loading_animations/loading_animations.dart';
-
-//import 'dart:js_interop';
-
-
-//import 'package:flutter_image_filters/flutter_image_filters.dart';
-@pragma("vm:entry_point")
-  Future<void> compareNow(image_paths) async
-  {
-     var image_1 = image_paths[0];
-     var image_2 = image_paths[1];
-     double img_diff = 0;
-     //double temp_res = await compareImages(src1: image_1, src2: image_2);
-     /*.then((value){
-      img_diff = 1 - value;*/
-     // img_diff = 1-temp_res;
-     // print("image comparision not same: $img_diff");
-      //});
-    //return img_diff;
-  }
 
 class WelcomeMsg extends StatefulWidget
 {
@@ -105,31 +74,8 @@ class WelcomeMsg_state extends State<WelcomeMsg> with SingleTickerProviderStateM
                                     wordSpacing: 5
                                     )).animate(animation_ctrl), 
               child: Text("IMAGE ANALYZER"),
-                  /*style: TextStyle(shadows:[Shadow(color: Colors.black87,offset: Offset(1, 1),blurRadius: 1)],
-                                    color: Color.fromARGB(255, 243, 166, 1),
-                                    fontSize: 20,
-                                    letterSpacing: 2,
-                                    wordSpacing: 5
-                                    ),
-                  )*/));
-    /*return 
-    DefaultTextStyle(
-      style: const TextStyle(
-    fontSize: 20.0,
-  ),
-      child:AnimatedTextKit(
-        isRepeatingAnimation: true,
-                  animatedTexts:[WavyAnimatedText("IMAGE ANALYZER",
-                  textStyle: TextStyle(shadows:[Shadow(color: Colors.black87,offset: Offset(1, 1),blurRadius: 1)],
-                                    color: Color.fromARGB(255, 243, 166, 1),
-                                    fontSize: 20,
-                                    letterSpacing: letter_space,
-                                    wordSpacing: 5
-                                    ),
-                  )]
-      )
-    );
-    */
+                  ));
+    
   }
 }
 
@@ -144,6 +90,7 @@ class ImagePicker1 extends StatefulWidget
 }
 //OnImageController image_ctrl =OnImageController();
 WidgetsToImageController widget_img_ctrl = WidgetsToImageController();
+WidgetsToImageController widget_img_ctrl2 = WidgetsToImageController();
 class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderStateMixin
 {
   bool is_image = false;
@@ -160,19 +107,22 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
   
   
   late PageController page_ctrl = PageController(initialPage: 0);
-  late GlobalObjectKey global_key = GlobalObjectKey(5856);
+  
   
   late Widget page_1, page_2, page_3;
 
   late Isolate edit_isolate;
 
-  double brightness_contrast = 0, exposure_val = 0, saturation_val = 3;
+  double brightness_contrast = 0,brightness_contrast2 =0, exposure_val = 0, exposure_val2 = 0, saturation_val = 3,saturation_val2 = 3;
 
   bool page_1_ctrls = false;
+  bool page_2_ctrls = false;
 
   bool is_saving_img = false;
+  bool is_saving_img2 = false;
 
   late img_man.Image my_image;
+
   late Uint8List my_image_bytes ;
   late Uint8List image_2_bytes;
 
@@ -207,6 +157,12 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
       page_1_ctrls = !page_1_ctrls;
     });
   }
+
+  void setPage2Ctrls(){
+    setState(() {
+      page_2_ctrls = !page_2_ctrls;
+    });
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -217,7 +173,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
           if(message is SendPort)
           {
             rem_send_port = message;
-            //message.send([brightness_contrast,exposure_val,my_image_bytes]);
+            
           }
           else
           {
@@ -226,8 +182,6 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
               print(message);
               print("and \n\n $my_image_bytes");
             
-           //my_image_bytes = (message as List<int>) as Uint8List;
-          /// print(my_image_bytes);
           }
          });
 
@@ -245,7 +199,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
       }
     });
     
-    Isolate.spawn(updateImage,my_send_port).then((value) => edit_isolate = value);
+    
     Isolate.spawn(xcompareImages,compare_send_port).then((value) => edit_isolate = value);
     
     //
@@ -255,6 +209,13 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
   {
     setState(() {
       is_saving_img = !is_saving_img;
+    });
+  }
+
+  void setSavingImg2()
+  {
+    setState(() {
+      is_saving_img2 = !is_saving_img2;
     });
   }
 
@@ -269,7 +230,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
     {
      
 
-    // my_image_bytes = img_man.encodeNamedImage(img_img, image_path) as Uint8List;
+    
       setState(() {
         brightness_contrast = bright_val;
         
@@ -295,6 +256,38 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
         //print("using image saturation $saturation_val");
       });
     }
+
+    void setBrightness2(double bright_val)
+    {
+     
+
+    
+      setState(() {
+        brightness_contrast2 = bright_val;
+        
+        
+        print("using image brightness $brightness_contrast2");
+      });
+    }
+
+    void setExposure2(double expos_val)
+    {
+      setState(() {
+        exposure_val2 = expos_val;
+        
+        //print("using image exposure $exposure_val");
+      });
+    }
+
+    void setSaturation2(double satu_val)
+    {
+      setState(() {
+        saturation_val2 = satu_val;
+        
+        //print("using image saturation $saturation_val");
+      });
+    }
+
     void setAnImage()
     {
       setState(() {
@@ -329,48 +322,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
       });
     }
 
-    static updateImage(SendPort a_send_port) async
-    {
-      print("updating image");
-
-      final x_recv_port = ReceivePort();
-      final x_send_port = x_recv_port.sendPort;
-
-      a_send_port.send(x_send_port);
-
-      await for(var update_args in x_recv_port)
-      {
-       double brightness_xval = update_args[0];
-       double exposure_xval = update_args[1];
-       Uint8List xmy_image_bytes = update_args[2];
-       String an_image_path = update_args[3];
-       //List<int> retorno =
-       // await PictureEditor.editImage(xmy_image_bytes, exposure_xval, brightness_xval) as List<int>;
-       
-        img_man.Image active_img_now = img_man.decodeImage(xmy_image_bytes) as img_man.Image;
-        img_man.Image img_img = img_man.adjustColor(active_img_now, brightness: brightness_xval, exposure: exposure_xval);
-        
-      Uint8List new_img = img_img.getBytes();
-      //img_man.encodeNamedImage(img_img, an_image_path) as Uint8List;
-       a_send_port.send(new_img);
-      }
-
-
-       /*double brightness_xval = update_args[0];
-       double exposure_xval = update_args[1];
-       Uint8List xmy_image_bytes = update_args[2];
-       StreamController<Uint8List> xpicture_strm = update_args[3];
-        await Future.delayed(Duration.zero);
-      final retorno =
-        await PictureEditor.editImage(xmy_image_bytes, exposure_xval, brightness_xval);
-        */
-      //img_man.Image img_img = img_man.adjustColor(my_image, brightness: brightness_xval, exposure: exposure_xval);
-      //Uint8List new_img = img_man.encodeNamedImage(img_img, image_path) as Uint8List;
-
-      //picture_strm.add(new_img);
-      //xpicture_strm.add(retorno as Uint8List);
     
-    }
 
     static xcompareImages(SendPort main_send_port) async
     {
@@ -405,11 +357,10 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
   Widget build(BuildContext build_context)
   {
     
-   // image_ctrl =OnImageController();
-   // image_ctrl.addListener(() { print("controller finished");});
 
     page_1 = Column(
-                                        children: [Text("Click Below to Choose Image",style: TextStyle(color: Colors.white,letterSpacing: 3)),InkWell( 
+                                        children: [
+                                          Text("Click Below to Choose Image",style: TextStyle(color: Colors.white,letterSpacing: 3)),InkWell( 
                                               onTap: () async{
                                                 print("hello tap");
                                                 ImagePicker image_picker = ImagePicker();
@@ -429,40 +380,22 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                                 height:300,
                                                                 decoration: BoxDecoration(
                                                                     border: Border.all(color: Colors.black),
-                                                                    color: Colors.white,
+                                                                    color: Colors.transparent,
                                                                     boxShadow: [BoxShadow(color: Colors.black,blurRadius: 5)]
                                                                     ),
                                                                 child:(is_image==false)?Icon(IconData(0xf80d, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,): WidgetsToImage(child: OnImageMatrixWidget(
-                                                            //controller: image_ctrl,
+                                                            
                                                                 colorFilter: OnImageMatrix.matrix(
                                                                   brightnessAndContrast: brightness_contrast,
                                                                   saturation: saturation_val,
                                                                   exposure: exposure_val, 
                                                             ),
-                                                            //imageKey: GlobalKey(),
-                                                           // imageFormat: ImageByteFormat.rawRgba,
+                                                            
                                                             child: Image.memory(my_image_bytes,fit:BoxFit.fill)
                                                             //Image.file(fit:BoxFit.fill,File(image_path)),
                                                             
                                                             ),
                                                             controller: widget_img_ctrl,)
-                                                            /*
-                                                            StreamBuilder<Uint8List>(
-                                                              stream:picture_strm.stream,
-                                                              builder: (BuildContext ctx,snapshot){
-                                                                if (snapshot.connectionState == ConnectionState.active) {
-                                                                return Image.memory(snapshot.data as Uint8List,fit:BoxFit.fill,gaplessPlayback: true,);
-                                                                }
-                                                                else
-                                                                {
-                                                                  return Image.memory(my_image_bytes,fit:BoxFit.fill,gaplessPlayback: true,);
-                                                                }
-                                                              },
-
-                                                            )*/
-                                                
-                                                //file(fit:BoxFit.fill,File(image_path))
-                                                //child: Image.file(File(image_path))
 
                                               ),
                                               (is_saving_img==true)?Container(
@@ -510,64 +443,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 //image editor controls
                                                 print("image editor on");
                                                 setPage1Ctrls();
-                                                /*Navigator.push(build_context, MaterialPageRoute(builder: (build_context){
-                                                  return ImageEditor(originImage: File(image_path));
-                                                })).then((result){
-                                                  if (result is EditorImageResult) {
-                                                          File nw_img = result.newFile;
-                                                          String nw_img_pth = nw_img.path;
-                                                          
-                                                          print("image result is $nw_img_pth");
-                                                          setImage(nw_img_pth);
-                                                }});
-                                                */
-                                                //TextureSource gl_image = await TextureSource.fromFile(File(image_path));
-                                                //BrightnessShaderConfiguration brightness_config = BrightnessShaderConfiguration();
-                                                //brightness_config.brightness = 0.5;
-
-                                               //var gl_img = await brightness_config.export(gl_image, gl_image.size);
-                                               
-                                               /*Navigator.push(build_context,MaterialPageRoute(builder: (build_context){
-                                                  return  ImageShaderPreview(configuration: brightness_config,texture: gl_image);
-                                               }));*/
-                                               /*ColorFiltered(colorFilter: ColorFilter.matrix(ColorFilterAddons.brightness(0.4)),
-                                                              child: Image.file(File(image_path)));
-                                                ColorFilter cf;
                                                 
-                                                Navigator.push(build_context,MaterialPageRoute(builder: (build_context){
-                                                  return ColorFiltered(colorFilter: ColorFilter.matrix(ColorFilterAddons.brightness(0.4)),
-                                                              child: Image.file(File(image_path)));
-                                               }));*/
-                                               /*
-                                              Navigator.push(build_context,MaterialPageRoute(builder: (build_context){
-                                               return OnImageMatrixWidget.builder(
-                                                            controller: image_ctrl,
-                                                            colorFilter: OnImageMatrix.matrix(
-                                                                  brightnessAndContrast: brightness_contrast, 
-                                                                  saturation: 0,
-                                                            ),
-                                                            imageKey: GlobalObjectKey(5856), 
-                                                            child: Image.file(File(image_path)),
-                                                            );
-                                              }));
-                                                image_ctrl.saveBytes();
-                                                Uint8List img = image_ctrl.imageBytes as Uint8List;
-                                                File file = File.new(image_path);
-                                                file.writeAsBytes(img.buffer.asInt8List());
-                                                */
-                                                
-                                                /*final image_editor_opt = image_editor.ImageEditorOption();
-                                                List<double> matrix = [1,0,0,0,0,
-                                                                      0,1,0,0,0,
-                                                                      0,0,1,0,0,
-                                                                      0,0,0,1,0];
-                                                image_editor_opt.addOption(image_editor.ColorOption(matrix:matrix));
-                                                print("image editor option on");
-                                                File made_img = await image_editor.ImageEditor.editFileImageAndGetFile(file: File(image_path), imageEditorOption: image_editor_opt) as File;
-                                                String made_path = made_img.path;
-                                                print("edit finished $made_path");
-                                                setImage(made_path);
-                                                */
 
                                               },
                                       )),
@@ -582,29 +458,13 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                               ElevatedButton(
                                               onPressed: () async
                                                           {
-                                                            //if(is_image==true)
-                                                            if(true)
+                                                            if(is_image==true)
+                                                            //if(true)
                                                             {
                                                              // image_ctrl.saveBytes();
                                                               
-                                                              ColorFilter cf = OnImageMatrix.matrix(
-                                                                  brightnessAndContrast: brightness_contrast,
-                                                                  saturation: saturation_val,
-                                                                  exposure: exposure_val, 
-                                                            );
-                                                            
-                                                            /*
-                                                             img_man.Image new_image = img_man.adjustColor(my_image, brightness: brightness_contrast,saturation: saturation_val,exposure: exposure_val);
-
-                                                             my_image_bytes = img_man.encodeNamedImage(new_image, image_path) as Uint8List;
-                                                             print(cf);
-                                                             // Uint8List img = image_ctrl.imageByte;
-                                                             // Uint8List? img = image_ctrl.imageBytes;
-                                                             // int? img_len = img?.length;
-                                                              //print(img_len);
-                                                              /*File file = File.new(image_path);
-                                                              file.writeAsBytes(img);*/
-                                                            */
+                                                              
+                                                           
                                                               setSavingImg();
                                                               my_image_bytes = await widget_img_ctrl.capture() as Uint8List;
                                                               setSavingImg();
@@ -643,21 +503,13 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                               Slider(value: brightness_contrast, divisions: 10,max:10, label:"brightness", onChanged: (double value) async{
                                                                 setBrightness(value);
                                                                 image_update_fin = false;
-                                                                //my_send_port.send([brightness_contrast,exposure_val,my_image_bytes,image_path]);
+                                                                
                                                                 ColorFilter cf = OnImageMatrix.matrix(
                                                                   brightnessAndContrast: brightness_contrast,
                                                                   saturation: saturation_val,
                                                                   exposure: exposure_val, 
                                                             ) as ColorFilter;
-                                                            //List<int> cf_list = cf as List<int>;
-                                                             //var my_bytes = await widget_img_ctrl.capture();
-                                                             //print(my_bytes);
-                                                            // image_ctrl.saveBytes();
-                                                            // print(image_ctrl.imageBytes);
-                                                             
-                                                          
-
-                                                             //,[brightness_contrast,exposure_val,my_image_bytes,picture_strm]);
+                                                       
                                                         })
                                               ]),
                                               Row(
@@ -673,7 +525,8 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                             ]);
     
     page_2 = Column(
-                                        children: [Text("Touch Below To Take Image"),InkWell( 
+                                        children: [
+                                          Text("Touch Below To Take Image",style:TextStyle(color: Colors.white,letterSpacing: 3)),InkWell( 
                                               onTap: () async{
                                                 print("hello tap");
                                                 ImagePicker image_picker = ImagePicker();
@@ -684,19 +537,57 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 setImage2(image_file.path);
                                                 
                                               },
-                                              child:Container(
+                                              child:Stack(
+                                              children:[
+                                                Container(
                                                 
-                                                //margin: EdgeInsets.only(left: 20),
+                                                margin: EdgeInsets.only(top: 10),
                                                 width: 280,
                                                 height:300,
                                                 decoration: BoxDecoration(border: Border.all(color: Colors.black),boxShadow: [BoxShadow(color: Colors.black,blurRadius: 5)]),
-                                                child:(is_image2==false)?Icon(IconData(0xef1e, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,): Image.memory(image_2_bytes,fit: BoxFit.fill)
+                                                child:(is_image2==false)?Icon(IconData(0xef1e, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,): //Image.memory(image_2_bytes,fit: BoxFit.fill)
+                                                WidgetsToImage(child: OnImageMatrixWidget(
+                                                            
+                                                                colorFilter: OnImageMatrix.matrix(
+                                                                  brightnessAndContrast: brightness_contrast2,
+                                                                  saturation: saturation_val2,
+                                                                  exposure: exposure_val2, 
+                                                            ),
+                                                            
+                                                            child: Image.memory(image_2_bytes,fit:BoxFit.fill)
+                                                            //Image.file(fit:BoxFit.fill,File(image_path)),
+                                                            
+                                                            ),
+                                                            controller: widget_img_ctrl2,)
+
+                                              ),
+                                              (is_saving_img2==true)?Container(
+                                                                margin: EdgeInsets.only(top: 20),
+                                                                width: 280,
+                                                                height:300,
+                                                                color: const Color.fromARGB(210, 30, 29, 29),
+                                                                
+                                                                child:LoadingFlipping.circle()
+                                                          ):Container(
+                                                            margin: EdgeInsets.only(top: 20),
+                                                                width: 280,
+                                                                height:300,
+                                                                child: Text("Touch here to replace or add image",style:TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 2))
+                                                          )
+                                                ]
+                                            )
+                              ),
                                                 //Image.file(fit:BoxFit.fill,File(image_2_path))
                                                 //child: Image.file(File(image_path))
 
-                                              )
-                              ),
-                              InkWell(
+                                              
+                              
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    InkWell(
                                       child: Icon(IconData(0xe1a3, fontFamily: 'MaterialIcons')),
                                       onTap: () async
                                               {
@@ -709,6 +600,21 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
 
                                               },
                                       ),
+                                      
+                                      Container(
+                                        //color: Colors.blueGrey,
+                                        margin: EdgeInsets.only(left: 20),
+                                        child:InkWell(
+                                          child: Icon(IconData(0xf00d, fontFamily: 'MaterialIcons')),
+                                          onTap: () async
+                                              {
+                                                //image editor controls
+                                                print("image editor on");
+                                                setPage2Ctrls();
+                                                
+
+                                              },
+                                      ))]),
                              // Container(
                               //  alignment: Alignment.topCenter,
                               Row(
@@ -732,11 +638,15 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                               Container(
                                                 margin: EdgeInsets.only(left:10),
                                                 child: ElevatedButton(
-                                                onPressed: ()
+                                                onPressed: () async
                                                             {
-                                                             // if(is_image2==true)
+                                                            if(is_image2==true)
                                                              if(true)
                                                               {
+                                                                setSavingImg2();
+                                                              image_2_bytes = await widget_img_ctrl2.capture() as Uint8List;
+                                                              setSavingImg2();
+              
                                                                 page_ctrl.nextPage(duration: Duration(seconds: 1), 
                                                                 curve: Curves.bounceOut);
                                                               }
@@ -757,7 +667,29 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                                             ))
                                                         )
                                             ]
-                                )
+                                ),
+                                (page_2_ctrls==true)?Column(children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                              Icon(IconData(0xe109, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 20,color: Colors.black87,),
+                                                              Slider(value: brightness_contrast2, divisions: 10,max:10, label:"brightness", onChanged: (double value) async{
+                                                                setBrightness2(value);
+                                                                image_update_fin = false;
+                                                                
+                                                            
+                                                       
+                                                        })
+                                              ]),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                              Icon(IconData(0xf729, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 20,color: Colors.black87,),
+                                                              Slider(value: exposure_val2, divisions: 10,max:5, label:"exposure", onChanged: (double value){
+                                                                setExposure2(value);
+                                                                
+                                                        })
+                                              ])]):Container(),
                             //  )
               ]);
 
@@ -784,7 +716,8 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 width: 140,
                                                 height:150,
                                                 decoration: BoxDecoration(border: Border.all(color: Colors.black),boxShadow: [BoxShadow(color: Colors.black,blurRadius: 5)]),
-                                                        child:Image.file(File(image_2_path),fit:BoxFit.fill)),
+                                                        child:Image.memory(image_2_bytes,fit:BoxFit.fill))
+                                                        ///Image.file(File(image_2_path),fit:BoxFit.fill)),
                                                       ]
                                           ):Row(
                                   //crossAxisAlignment: CrossAxisAlignment.center,
@@ -837,18 +770,10 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                                         if(start_comparision==false)
                                                                         {
                                                                         startComparision();
-                                                                        //var image_1 = File(image_path);
-                                                                        //var image_2 = File(image_2_path);
-
-                                                                        //flutterCompute(compareNow,[image_1,image_2]);
-                                                                        //Uint8List image_2_bytes = await image_2.readAsBytes();
+                                                                        
                                                                         compare_remote_send_port.send([my_image_bytes,image_2_bytes]);
                                                                         }
-                                                                        //startComparision();
-
                                                                         
-                                                                       // page_ctrl.nextPage(duration: Duration(seconds: 1), 
-                                                                       // curve: Curves.bounceOut);
                                                                       }, 
                                                           child: (start_comparision==false)?Text("COMPARE"):Text("WAIT...."),
                                                           style: ButtonStyle(
@@ -891,7 +816,10 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 Text("COMPARISION SCORE: ",style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
                                                         letterSpacing: 3)),
-                                                Text(comparision_value==0.0?"_ _":comparision_value.toString(),style:TextStyle(color: Colors.white70,
+                                                Text(comparision_value==0.0?"_ _":(((comparision_value)*100).toStringAsFixed(3)),style:TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 3)),
+                                                Text("%",style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
                                                         letterSpacing: 3))
                                               ]
@@ -938,23 +866,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                           
                             
               ])
-              /*GridView.count(
-      crossAxisCount: 2,
-      scrollDirection: Axis.vertical,
-      children: [
-                  Align(
-                              alignment: Alignment.topRight,
-                              
-                              child: Container(
-                                                margin: EdgeInsets.only(left: 20),
-                                                //width: 100,
-                                                decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                                child:Icon(IconData(0xf120, fontFamily: 'MaterialIcons'),fill: 1.0,size: 20,)
-
-                                              ),
-                           )
-                ],
-      )*/
+              
       );
   }
 }
@@ -1007,23 +919,6 @@ class WelcomeEyes_state extends State<WelcomeEyes> with SingleTickerProviderStat
                                     wordSpacing: 5
                                     ),
                   )*/));
-    /*return 
-    DefaultTextStyle(
-      style: const TextStyle(
-    fontSize: 20.0,
-  ),
-      child:AnimatedTextKit(
-        isRepeatingAnimation: true,
-                  animatedTexts:[WavyAnimatedText("IMAGE ANALYZER",
-                  textStyle: TextStyle(shadows:[Shadow(color: Colors.black87,offset: Offset(1, 1),blurRadius: 1)],
-                                    color: Color.fromARGB(255, 243, 166, 1),
-                                    fontSize: 20,
-                                    letterSpacing: letter_space,
-                                    wordSpacing: 5
-                                    ),
-                  )]
-      )
-    );
-    */
+  
   }
 }
