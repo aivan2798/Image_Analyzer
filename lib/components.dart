@@ -21,12 +21,13 @@ import 'package:colorfilter_generator/colorfilter_generator.dart';
 import 'package:image/image.dart' as img_man;
 import 'package:colorfilter_generator/addons.dart';
 import 'package:on_image_matrix/on_image_matrix.dart';
-import 'package:image_compare/image_compare.dart';
+//import 'package:image_compare/image_compare.dart';
 
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_editor/flutter_image_editor.dart';
 import 'package:loading_animations/loading_animations.dart';
+import 'package:flutter_pixelmatching/flutter_pixelmatching.dart';
 
 import 'page1.dart';
 
@@ -150,9 +151,9 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
   void loadImage() async
   {
     List<int> img_bytes = await File(image_path).readAsBytes();
-    my_image = img_man.decodeImage(img_bytes) as img_man.Image;
+    //my_image = img_man.decodeImage(img_bytes) as img_man.Image;
     
-    img_man.adjustColor(my_image, brightness: 5);
+    //img_man.adjustColor(my_image, brightness: 5);
   }
   
 
@@ -198,7 +199,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
       else
       {
         print("image comparision: $message");
-        comparision_value = (1.0-message);
+        comparision_value = (message);
         startComparision();
       }
     });
@@ -340,9 +341,16 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
         var image_1 = msg[0];
         var image_2 = msg[1];
         double img_diff = 0;
-        double temp_res = await compareImages(src1: image_1, src2: image_2);
+        double temp_res = 0.0;
 
-        main_send_port.send(temp_res);
+        final matching = PixelMatching();
+// setup target image
+        await matching?.initialize(image: image_1);
+// compare image 
+    final double? similarity = await matching?.similarity(image_2);
+        //await compareImages(src1: image_1, src2: image_2);
+
+        main_send_port.send((similarity as double));
       
       }
 
@@ -820,10 +828,10 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 Text("COMPARISION SCORE: ",style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
                                                         letterSpacing: 3)),
-                                                Text(comparision_value==0.0?"_ _":(((comparision_value)*100).toStringAsFixed(3)),style:TextStyle(color: Colors.white70,
+                                                Text(comparision_value==0.0?"0.0":(((comparision_value)*100).toStringAsFixed(3)),style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
                                                         letterSpacing: 3)),
-                                                Text("%",style:TextStyle(color: Colors.white70,
+                                                Text("% similar",style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
                                                         letterSpacing: 3))
                                               ]

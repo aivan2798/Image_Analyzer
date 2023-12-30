@@ -44,8 +44,8 @@ class MainApp extends StatelessWidget {
             
             children: [
               WelcomeEyes(),
-              //MainPage()
-              ImagePicker1()
+              MainPage(),
+              //ImagePicker1()
             ],
           ),
         ),
