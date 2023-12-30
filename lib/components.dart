@@ -28,6 +28,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_image_editor/flutter_image_editor.dart';
 import 'package:loading_animations/loading_animations.dart';
 
+import 'page1.dart';
+
+
+
 class WelcomeMsg extends StatefulWidget
 {
 @override
@@ -729,7 +733,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 width: 140,
                                                 height:150,
                                                 decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                                child:(is_image2==false)?Icon(IconData(0xf80d, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,):Image.file(fit:BoxFit.fill,File(image_2_path))
+                                                child:(is_image2==false)?Icon(IconData(0xf80d, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,):Image.file(File(image_2_path),fit:BoxFit.fill)
                                                 //child: Image.file(File(image_path))
 
                                               ),
@@ -739,7 +743,7 @@ class ImagePicker1State extends State<ImagePicker1> with SingleTickerProviderSta
                                                 width: 140,
                                                 height:150,
                                                 decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                                child:(is_image2==false)?Icon(IconData(0xef1e, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: const Color.fromARGB(255, 0, 0, 0),):Image.file(fit:BoxFit.fill,File(image_2_path))
+                                                child:(is_image2==false)?Icon(IconData(0xef1e, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: const Color.fromARGB(255, 0, 0, 0),):Image.file(File(image_2_path),fit:BoxFit.fill)
                                                 //child: Image.file(File(image_path))
 
                                               ),

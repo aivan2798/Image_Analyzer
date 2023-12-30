@@ -42,3 +42,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+#added modules
+page1.dart
+page2.dart
+page3.dart
+main_page.dart

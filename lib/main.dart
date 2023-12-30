@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:image_analyzer/components.dart';
+import 'package:image_analyzer/main_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -43,6 +44,7 @@ class MainApp extends StatelessWidget {
             
             children: [
               WelcomeEyes(),
+              //MainPage()
               ImagePicker1()
             ],
           ),
