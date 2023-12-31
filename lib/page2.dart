@@ -202,7 +202,7 @@ class Page2State extends State<Page2> with SingleTickerProviderStateMixin,Automa
 
                                               ),
                                               (is_saving_img==true)?Container(
-                                                                margin: EdgeInsets.only(top: 20),
+                                                                margin: EdgeInsets.only(top: 10),
                                                                 width: 280,
                                                                 height:300,
                                                                 color: const Color.fromARGB(210, 30, 29, 29),
@@ -236,7 +236,7 @@ class Page2State extends State<Page2> with SingleTickerProviderStateMixin,Automa
                                              print("crop finished");
                                              String crop_path = crop_file.path;
                                              print("the cropped file is at $crop_path");
-                                             setImage(crop_path);
+                                             setImage(crop_file);
 
                                               },
                                       ),
@@ -299,7 +299,10 @@ class Page2State extends State<Page2> with SingleTickerProviderStateMixin,Automa
                                                                   ));
                                                               }
                                                             }, 
-                                                child: Text("Compare Images"),
+                                                child: (is_saving_img==false)?Text("Compare Images"):AnimatedTextKit(animatedTexts: [TyperAnimatedText("--",textStyle: TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 3),curve: Curves.easeInOut,speed:Duration(milliseconds:300))],
+                                                        repeatForever: true),
                                                 style: ButtonStyle(
                                                                               backgroundColor: MaterialStatePropertyAll(Colors.black87),
                                                                               elevation: MaterialStatePropertyAll(20),

@@ -57,7 +57,7 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
   bool is_image2 = false;
   
 
-  late AnimationController scan_ctrl = AnimationController(vsync: this,duration: Duration(seconds: 5))..repeat(reverse: true);
+  late AnimationController scan_ctrl = AnimationController(vsync: this,duration: Duration(seconds: 1))..repeat(reverse: true);
   double comparision_value = 0.0;
   //late OnImageController image_ctrl ;//=OnImageController();
 
@@ -106,8 +106,9 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
       }
     });
     
-    
+
     Isolate.spawn(xcompareImages,compare_send_port).then((value) => edit_isolate = value);
+    
     print("re injt");
     //
   }
@@ -123,6 +124,12 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
     
   void redraw()
     {
+      if((is_image==true)&&(is_image2==true))
+      {
+        my_image_bytes = page_1_ref.page_1_state.getCurrentImage();
+        image_2_bytes = page_2_ref.page_2_state.getCurrentImage();
+        print("got new images");
+      }
       setState(() {
         state_man = !state_man;
       });
@@ -150,7 +157,7 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
 // compare image 
     final double? similarity = await matching?.similarity(image_2);
         //await compareImages(src1: image_1, src2: image_2);
-
+        //print("new comparision: $similarity");
         main_send_port.send((similarity as double));
 
       
@@ -275,6 +282,7 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
                                                                         {
                                                                         if(start_comparision==false)
                                                                         {
+                                                                        comparision_value = 0.0;
                                                                         startComparision();
                                                                         
                                                                         compare_remote_send_port.send([my_image_bytes,image_2_bytes]);
@@ -336,13 +344,18 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
                                                 
                                                 Text("SIMILARITY : ",style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
-                                                        letterSpacing: 3)),
-                                                Text(comparision_value==0.0?"0":(((comparision_value)*100).toStringAsFixed(3)),style:TextStyle(color: Colors.white70,
+                                                        letterSpacing: 3)),(start_comparision==false)?
+                                                Text(comparision_value==0.0?"0.0":(((comparision_value)*100).toStringAsFixed(3)),style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
-                                                        letterSpacing: 3)),
+                                                        letterSpacing: 3)):AnimatedTextKit(animatedTexts: [TyperAnimatedText("--",textStyle: TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 3),curve: Curves.easeInOut,speed:Duration(milliseconds:300))],
+                                                        repeatForever: true),
                                                 Text("%",style:TextStyle(color: Colors.white70,
                                                         fontWeight:FontWeight.bold,
-                                                        letterSpacing: 3))
+                                                        letterSpacing: 3)),
+                                              
+                                              
                                               ]
                                             )
                                           )
@@ -368,7 +381,7 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
                                               
                                               child:Container(
                                                         //margin: EdgeInsets.only(top: 15),
-                                                        width: 50,
+                                                        width: 30,
                                                         height: 150,
                                                         alignment: Alignment.center,
                                                         decoration: BoxDecoration(

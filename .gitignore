@@ -48,4 +48,4 @@ app.*.map.json
 #page2.dart
 #page3.dart
 #main_page.dart
-components.dart
+#components.dart

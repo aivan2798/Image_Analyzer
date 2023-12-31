@@ -309,7 +309,10 @@ class Page1State extends State<Page1> with SingleTickerProviderStateMixin,Automa
                                                                   ));
                                                             }
                                                           }, 
-                                              child: Text("Continue...."),
+                                              child: (is_saving_img==false)?Text("Continue...."):AnimatedTextKit(animatedTexts: [TyperAnimatedText("--",textStyle: TextStyle(color: Colors.white70,
+                                                        fontWeight:FontWeight.bold,
+                                                        letterSpacing: 3),curve: Curves.easeInOut,speed:Duration(milliseconds:300))],
+                                                        repeatForever: true),
                                               style: ButtonStyle(
                                                                               backgroundColor: MaterialStatePropertyAll(Colors.black87),
                                                                               elevation: MaterialStatePropertyAll(20),
