@@ -67,6 +67,7 @@ class Page1State extends State<Page1> with SingleTickerProviderStateMixin,Automa
   
 
   late Uint8List my_image_bytes ;
+  late Uint8List main_image_bytes ;
 
   void setPage1Ctrls(){
     setState(() {
@@ -109,11 +110,11 @@ class Page1State extends State<Page1> with SingleTickerProviderStateMixin,Automa
 
     void setBrightness(double bright_val)
     {
-      active_matrix=OnImageMatrix.matrix(
+     /* active_matrix=OnImageMatrix.matrix(
                                                                   brightnessAndContrast: brightness_contrast,
                                                                   //saturation: saturation_val,
                                                                   exposure: bright_val, 
-                                                            );
+                                                            );*/
       setState(() {
         brightness_contrast = bright_val;
         
@@ -124,11 +125,12 @@ class Page1State extends State<Page1> with SingleTickerProviderStateMixin,Automa
 
     void setExposure(double expos_val)
     {
-      active_matrix= OnImageMatrix.matrix(
+     /* active_matrix= OnImageMatrix.matrix(
                                                                   brightnessAndContrast: brightness_contrast,
                                                                   //saturation: saturation_val,
                                                                   exposure: exposure_val, 
                                                             );
+                                                          */
       setState(() {
         exposure_val = expos_val;
         
@@ -154,6 +156,7 @@ class Page1State extends State<Page1> with SingleTickerProviderStateMixin,Automa
     void setImage(active_img) async
     {
       my_image_bytes = await active_img.readAsBytes();
+      main_image_bytes = my_image_bytes;
     
       setState((){
         image_path = active_img.path;
@@ -204,9 +207,13 @@ class Page1State extends State<Page1> with SingleTickerProviderStateMixin,Automa
                                                                     ),
                                                                 child:(is_image==false)?Icon(IconData(0xf80d, fontFamily: 'MaterialIcons'),semanticLabel: "choose an image",size: 100,color: Colors.blueGrey,): WidgetsToImage(child: OnImageMatrixWidget(
                                                                     
-                                                                colorFilter: active_matrix,
+                                                                colorFilter: OnImageMatrix.matrix(
+                                                                  brightnessAndContrast: brightness_contrast,
+                                                                  //saturation: saturation_val,
+                                                                  exposure: exposure_val, 
+                                                            ),
                                                             
-                                                            child: Image.memory(my_image_bytes,fit:BoxFit.fill)
+                                                            child: Image.memory(main_image_bytes,fit:BoxFit.fill)
                                                             //Image.file(fit:BoxFit.fill,File(image_path)),
                                                             
                                                             ),

@@ -57,7 +57,7 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
   bool is_image2 = false;
   
 
-  late AnimationController scan_ctrl = AnimationController(vsync: this,duration: Duration(seconds: 1))..repeat(reverse: true);
+  late AnimationController scan_ctrl = AnimationController(vsync: this,duration: Duration(seconds: 5))..repeat(reverse: true);
   double comparision_value = 0.0;
   //late OnImageController image_ctrl ;//=OnImageController();
 
@@ -84,7 +84,7 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
   
   late StreamSubscription image_compare_listener;
 
-
+  
       
   @override
   void initState() {
@@ -168,10 +168,20 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
   @override
   Widget build(BuildContext build_context)
   {
-    my_image_bytes = page_1_ref.page_1_state.getCurrentImage();
-    image_2_bytes = page_2_ref.page_2_state.getCurrentImage();
     is_image = page_1_ref.page_1_state.is_image;
     is_image2 = page_2_ref.page_2_state.is_image;
+    if((is_image==true)&&(is_image2==true))
+    {
+      my_image_bytes = page_1_ref.page_1_state.getCurrentImage();
+      image_2_bytes = page_2_ref.page_2_state.getCurrentImage();
+    }
+    else
+    {
+      /*
+      
+      */
+    }
+    
 
     print("re built");
     return
@@ -236,6 +246,7 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
                                                 //child: Image.file(File(image_path))
 
                                               ),
+                                              
                                                       ]
                                           ),
                                           Row(
@@ -260,11 +271,28 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
                                                         child:ElevatedButton(
                                                           onPressed: () async
                                                                       {
+                                                                        if((is_image)&&(is_image2))
+                                                                        {
                                                                         if(start_comparision==false)
                                                                         {
                                                                         startComparision();
                                                                         
                                                                         compare_remote_send_port.send([my_image_bytes,image_2_bytes]);
+                                                                        }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                          showDialog(context: build_context, 
+                                                                                      builder: (build_context){
+                                                                                      return AlertDialog(title: Text("No Images"),
+                                                                                                           content: Text("please insert images 1st"),
+                                                                                                           actions:[
+                                                                                                           TextButton(onPressed: (){page_ctrl.previousPage(duration: Duration(seconds: 1), 
+                                                                                                          curve: Curves.bounceOut);}, child: Text("OK"))
+                                               ]
+                                      );
+                  });
+
                                                                         }
                                                                         
                                                                       }, 
@@ -321,21 +349,36 @@ class Page3State extends State<Page3> with SingleTickerProviderStateMixin,Automa
                             //  )
               ],
               ),
-              start_comparision?SlideTransition(
-                                              position: Tween<Offset>(begin: Offset(0,0), end:Offset(13,0)).animate(scan_ctrl),
+              
+              Container(
+
+                 //width: 280,
+                height:150,
+                margin: EdgeInsets.only(top: 15),
+               // color: Colors.yellow,
+               alignment: Alignment.center,
+              child:
+              Container(
+                width: 280,
+                height:150,
+               // color: Colors.yellow,
+              child:(start_comparision)?AlignTransition(
+                                              //position: Tween<Offset>(begin: Offset(0,0), end:Offset(0,0)).animate(scan_ctrl),
+                                              alignment: AlignmentTween(begin:Alignment.topLeft, end: Alignment.topRight).animate(scan_ctrl),
                                               
                                               child:Container(
-                                                        margin: EdgeInsets.only(left: ((MediaQuery.of(context).size.width)/90),top: 15),
-                                                        width: 20,
+                                                        //margin: EdgeInsets.only(top: 15),
+                                                        width: 50,
                                                         height: 150,
-                                                        
+                                                        alignment: Alignment.center,
                                                         decoration: BoxDecoration(
-                                                                            gradient: LinearGradient(colors: [Color.fromARGB(255, 96, 188, 99),const Color.fromARGB(200, 130, 198, 132),Color.fromARGB(100, 170, 215, 172),const Color.fromARGB(80, 167, 235, 169)]),
+                                                                            gradient: LinearGradient(colors: [Color.fromARGB(214, 2, 95, 5),Color.fromARGB(199, 2, 117, 6),Color.fromARGB(99, 3, 169, 11),const Color.fromARGB(80, 167, 235, 169)]),
                                                                             //color:Colors.green,
                                                                             //boxShadow: [BoxShadow(color:Colors.lightGreen,blurRadius: 2,offset: Offset(1, 1),spreadRadius: 2)
-                                                                            
-                                                                                  ),
-                                                        )):Container(),
+                                                        
+                                                                                  )
+                                                        /*child:Text("scanning"),*/
+                                                        )):Container())),
                                               
                                             ]
                             );

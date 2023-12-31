@@ -60,6 +60,7 @@ class Page2State extends State<Page2> with SingleTickerProviderStateMixin,Automa
   bool state_man = false;
 
   late Uint8List my_image_bytes ;
+  late Uint8List main_image_bytes;
 
   void setPageCtrls(){
     setState(() {
@@ -139,6 +140,7 @@ class Page2State extends State<Page2> with SingleTickerProviderStateMixin,Automa
     void setImage(active_img) async
     {
       my_image_bytes = await active_img.readAsBytes();
+      main_image_bytes = my_image_bytes;
     
       setState((){
         image_path = active_img.path;
@@ -192,7 +194,7 @@ class Page2State extends State<Page2> with SingleTickerProviderStateMixin,Automa
                                                                   exposure: exposure_val, 
                                                             ),
                                                             
-                                                            child: Image.memory(my_image_bytes,fit:BoxFit.fill)
+                                                            child: Image.memory(main_image_bytes,fit:BoxFit.fill)
                                                             //Image.file(fit:BoxFit.fill,File(image_path)),
                                                             
                                                             ),
